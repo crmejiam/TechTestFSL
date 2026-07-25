@@ -17,9 +17,9 @@ jobs:
         id: set-env
         run: |
           if [ "${{ github.ref_name }}" = "devel" ]; then
-            echo "ENV_DIR=environments/devel" >> $GITHUB_ENV
+            echo "ENV_DIR=terraform/environments/devel" >> $GITHUB_ENV
           elif [ "${{ github.ref_name }}" = "stage" ]; then
-            echo "ENV_DIR=environments/stage" >> $GITHUB_ENV
+            echo "ENV_DIR=terraform/environments/stage" >> $GITHUB_ENV
           fi
 
       - name: Install terraform
@@ -37,4 +37,3 @@ jobs:
           cd ${{ env.ENV_DIR }}
           terraform init
           terraform apply -auto-approve
-          
