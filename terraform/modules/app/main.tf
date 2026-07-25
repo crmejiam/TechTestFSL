@@ -8,14 +8,41 @@ resource "aws_s3_bucket" "app_bucket" {
   force_destroy = true
 }
 
-# resource "aws_s3_bucket_public_access_block" "app_bucket_block" {
-#   bucket = aws_s3_bucket.app_bucket.id
+resource "aws_s3_bucket_public_access_block" "app_bucket_block" {
+  bucket = aws_s3_bucket.app_bucket.id
 
-#   block_public_acls       = true
-#   block_public_policy     = true
-#   ignore_public_acls      = true
-#   restrict_public_buckets = true
-# }
+  block_public_acls       = false
+  block_public_policy     = false
+  ignore_public_acls      = false
+  restrict_public_buckets = false
+}
+
+resource "aws_s3_bucket_public_access_block" "log_bucket_block" {
+  bucket = aws_s3_bucket.example.id
+
+  block_public_acls       = false
+  block_public_policy     = false
+  ignore_public_acls      = false
+  restrict_public_buckets = false
+}
+
+resource "aws_s3_bucket_acl" "app_bucket_acl" {
+  depends_on = [
+    aws_s3_bucket_public_access_block.app_bucket_block,
+  ]
+
+  bucket = aws_s3_bucket.app_bucket.id
+  acl    = "public-read"
+}
+
+resource "aws_s3_bucket_acl" "log_bucket_acl" {
+  depends_on = [
+    aws_s3_bucket_public_access_block.log_bucket_block,
+  ]
+
+  bucket = aws_s3_bucket.log_bucket.id
+  acl    = "public-read"
+}
 
 resource "aws_s3_bucket" "log_bucket" {
   bucket = "${var.resource_name_prefix}-${var.environment}-logs"
