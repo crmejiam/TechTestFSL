@@ -26,22 +26,38 @@ resource "aws_s3_bucket_public_access_block" "log_bucket_block" {
   restrict_public_buckets = false
 }
 
+resource "aws_s3_bucket_ownership_controls" "app" {
+  bucket = aws_s3_bucket.app_bucket.id
+  rule {
+    object_ownership = "BucketOwnerPreferred"
+  }
+}
+
+resource "aws_s3_bucket_ownership_controls" "log" {
+  bucket = aws_s3_bucket.log_bucket.id
+  rule {
+    object_ownership = "BucketOwnerPreferred"
+  }
+}
+
 resource "aws_s3_bucket_acl" "app_bucket_acl" {
   depends_on = [
-    aws_s3_bucket_public_access_block.app_bucket_block,
+    aws_s3_bucket_ownership_controls.app,
+    aws_s3_bucket_public_access_block.app_bucket_block
   ]
 
   bucket = aws_s3_bucket.app_bucket.id
-  acl    = "public-read"
+  acl    = "public-read-write"
 }
 
 resource "aws_s3_bucket_acl" "log_bucket_acl" {
   depends_on = [
-    aws_s3_bucket_public_access_block.log_bucket_block,
+    aws_s3_bucket_ownership_controls.log,
+    aws_s3_bucket_public_access_block.log_bucket_block
   ]
 
   bucket = aws_s3_bucket.log_bucket.id
-  acl    = "public-read"
+  acl    = "log-delivery-write"
 }
 
 resource "aws_s3_bucket" "log_bucket" {
