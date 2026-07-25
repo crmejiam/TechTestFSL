@@ -18,7 +18,7 @@ resource "aws_s3_bucket_public_access_block" "app_bucket_block" {
 }
 
 resource "aws_s3_bucket_public_access_block" "log_bucket_block" {
-  bucket = aws_s3_bucket.example.id
+  bucket = aws_s3_bucket.log_bucket.id
 
   block_public_acls       = false
   block_public_policy     = false
