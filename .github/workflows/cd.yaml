@@ -1,0 +1,40 @@
+name: CD Pipeline
+
+on: 
+  push:
+    branches:
+      - devel
+      - stage 
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps: 
+      - name: Check out code
+        uses: actions/checkout@v7
+
+      - name: Set Env
+        id: set-env
+        run: |
+          if [ "${{ github.ref_name }}" = "devel" ]; then
+            echo "ENV_DIR=environments/devel" >> $GITHUB_ENV
+          elif [ "${{ github.ref_name }}" = "stage" ]; then
+            echo "ENV_DIR=environments/stage" >> $GITHUB_ENV
+          fi
+
+      - name: Install terraform
+        uses: hashicorp/setup-terraform@v4
+        
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v6
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
+
+      - name: Terraform apply
+        run: |
+          cd ${{ env.ENV_DIR }}
+          terraform init
+          terraform apply -auto-approve
+          
